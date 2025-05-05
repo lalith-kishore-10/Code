@@ -211,6 +211,7 @@
             object-fit: cover;
             border-radius: 5px;
             flex-shrink: 0;
+            cursor: pointer; /* Indicates image is clickable */
         }
         .carousel-btn {
             position: absolute;
@@ -265,6 +266,42 @@
         .project-modal-buy:hover {
             background: #ff00c1;
         }
+        /* Image Popup Modal */
+        .image-popup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .image-popup-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            text-align: center;
+        }
+        .image-popup-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+        .image-popup-close {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            color: #ff00c1;
+            font-size: 2em;
+            cursor: pointer;
+        }
+        .image-popup-close:hover {
+            color: #ff33d1;
+        }
     </style>
 </head>
 <body>
@@ -310,13 +347,21 @@
             <span class="close-btn" onclick="closeModal('projectModal')">X</span>
             <div class="carousel-container">
                 <div class="carousel-inner" id="carouselInner"></div>
-                <button class="carousel-btn prev" onclick="prevSlide()">&#10094;</button>
-                <button class="carousel-btn next" onclick="nextSlide()">&#10095;</button>
+                <button class="carousel-btn prev" onclick="prevSlide()">❮</button>
+                <button class="carousel-btn next" onclick="nextSlide()">❯</button>
             </div>
             <h2 class="project-modal-title" id="projectModalTitle"></h2>
             <p class="project-modal-description" id="projectModalDescription"></p>
             <p class="project-modal-price">Price: Rs.30</p>
             <button class="project-modal-buy" onclick="buyProject()">Buy Now</button>
+        </div>
+    </div>
+
+    <!-- Image Popup Modal -->
+    <div id="imagePopupModal" class="image-popup-modal">
+        <div class="image-popup-content">
+            <span class="image-popup-close" onclick="closeModal('imagePopupModal')">X</span>
+            <img id="popupImage" src="" alt="Full-screen image">
         </div>
     </div>
 
@@ -354,9 +399,9 @@
 
         // Hardcoded project data with three screenshots per project
         const placeholderImages = [
-            'https://placehold.co/300x150?text=Screenshot+1&font=roboto',
-            'https://placehold.co/300x150?text=Screenshot+2&font=roboto',
-            'https://placehold.co/300x150?text=Screenshot+3&font=roboto'
+            'https://placehold.co/600x300?text=Screenshot+1&font=roboto',
+            'https://placehold.co/600x300?text=Screenshot+2&font=roboto',
+            'https://placehold.co/600x300?text=Screenshot+3&font=roboto'
         ];
         const projects = Array.from({ length: 60 }, (_, i) => ({
             id: i + 1,
@@ -422,12 +467,20 @@
                     img.src = src;
                     img.alt = `${project.name} screenshot ${index + 1}`;
                     img.className = 'carousel-image';
+                    img.onclick = () => openImagePopup(src, img.alt); // Add click handler
                     carouselInner.appendChild(img);
                 });
                 currentSlide = 0;
                 updateCarousel();
                 openModal('projectModal');
             }
+        }
+
+        function openImagePopup(src, alt) {
+            const popupImage = document.getElementById('popupImage');
+            popupImage.src = src;
+            popupImage.alt = alt;
+            openModal('imagePopupModal');
         }
 
         function updateCarousel() {
